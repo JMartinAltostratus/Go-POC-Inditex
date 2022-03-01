@@ -1,12 +1,13 @@
 package DB
 
 import (
+	"github.com/JMartinAltostratus/Go-POC-Inditex/internal/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 // SearchElastic Hacer conexion con Elastic y buscar en funcion de una palabra o whatever
-func SearchElastic() gin.HandlerFunc {
+func SearchElastic(note models.Note) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "searchElastic ha funcionao")
 	}
