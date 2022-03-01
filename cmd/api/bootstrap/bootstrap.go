@@ -6,6 +6,7 @@ package bootstrap
 */
 
 import (
+	"github.com/JMartinAltostratus/Go-POC-Inditex/internal/server"
 	_ "github.com/go-sql-driver/mysql"
 )
 
