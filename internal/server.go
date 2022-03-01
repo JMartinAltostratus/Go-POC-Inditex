@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	handler "github.com/JMartinAltostratus/Go-POC-Inditex/internal/DB/hanlders.go"
+	handler "github.com/JMartinAltostratus/Go-POC-Inditex/internal/DB"
 	//Aqui faltaría el import de Note si estuviese en un archivo DATA o STRUCTS o algo así
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +19,7 @@ type Note struct {
 }
 
 // Simplemente crea una nueva nota
-func NewNote(id, name, content, relationships) Note {
+func NewNote(id string, name string, content string, relationships []string) Note {
 
 	return Note{
 		id:            id,
@@ -50,7 +50,7 @@ func New(host string, port uint) Server {
 
 //No sé muy bien qué hace, revisar
 func (s *Server) Run() error {
-	log.Println("Server running on", s.httpAdr)
+	log.Println("Server running on", s.httpAddr)
 	return s.engine.Run(s.httpAddr)
 }
 

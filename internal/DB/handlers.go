@@ -1,16 +1,27 @@
 package DB
 
-//Hacer conexion con Elastic y buscar en funcion de una palabra o whatever
-func SearchElastic() {
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
+// SearchElastic Hacer conexion con Elastic y buscar en funcion de una palabra o whatever
+func SearchElastic() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "searchElastic ha funcionao")
+	}
 }
 
-// Hacer conexion con Neo4J y devolver un objeto de tipo Nota
-func SearchNeo4J() {
-
+// SearchNeo4J Hacer conexion con Neo4J y devolver un objeto de tipo Nota
+func SearchNeo4J() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "searchNeo4J ha funcionao")
+	}
 }
 
-// Update a la BD Neo4J con los cambios en la nota
-func UpdateNote() {
-
+// UpdateNote Update a la BD Neo4J con los cambios en la nota
+func UpdateNote() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "UpdateNote ha funcionao")
+	}
 }
