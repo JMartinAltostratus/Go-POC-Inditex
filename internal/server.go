@@ -15,7 +15,7 @@ type Note struct {
 	id            string
 	name          string
 	content       string
-	relationships []int
+	relationships []string
 }
 
 // Simplemente crea una nueva nota
