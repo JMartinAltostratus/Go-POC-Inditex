@@ -32,13 +32,13 @@ func CreateHandler() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("------ HA LLEGADO A LA PETICION --------") //NO LLEGA
-		//PONER EJEMPLO AQUI PARA VER QUE PASA
+		fmt.Printf("------ HA LLEGADO LA PETICION --------") //LLEGA SI EL JSON ESTÁ CORRECTO
 
 		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
 		note := models.NewNote(req.ID, req.Name, req.Text, nil) //
 		handler.SearchElastic(note)                             //Para probar un ejemplo, hago una busqueda
 		ctx.Status(http.StatusCreated)                          //Un 201 si todo va bien
+		fmt.Print(note.ID())
 	}
 }
 
