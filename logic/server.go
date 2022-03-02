@@ -1,12 +1,12 @@
-package internal
+package logic
 
 import (
 	"fmt"
-	"github.com/JMartinAltostratus/Go-POC-Inditex/internal/models"
+	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"log"
 	"net/http"
 
-	handler "github.com/JMartinAltostratus/Go-POC-Inditex/internal/DB"
+	handler "github.com/JMartinAltostratus/Go-POC-Inditex/logic/DB"
 	//Aqui faltaría el import de Note si estuviese en un archivo DATA o STRUCTS o algo así
 	"github.com/gin-gonic/gin"
 )

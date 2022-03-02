@@ -1,7 +1,7 @@
 package DB
 
 import (
-	"github.com/JMartinAltostratus/Go-POC-Inditex/internal/models"
+	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
