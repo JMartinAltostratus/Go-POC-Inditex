@@ -23,13 +23,12 @@ type createRequest struct {
 }
 
 func CreateHandler() gin.HandlerFunc {
-	fmt.Printf("LLEGA A LA PETICION 1111") //SI LLEGA???????
 	return func(ctx *gin.Context) {
 		//Hacer cosas en funcion del archivo en el que esté
-		fmt.Printf("LLEGA A LA PETICION 22222")    //NO LLEGA
+		fmt.Printf("CreateHandler correcto \n")    //LLEGA.
 		var req createRequest                      //Me declaro una request con la forma del struct de arriba
 		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
-			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest
+			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
 			return
 		}
 
