@@ -17,5 +17,6 @@ const (
 
 func Run() error {
 	srv := server.New(host, port)
+	//println("Servidor creado")
 	return srv.Run()
 }

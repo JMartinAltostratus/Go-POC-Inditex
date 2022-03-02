@@ -23,14 +23,17 @@ type createRequest struct {
 }
 
 func CreateHandler() gin.HandlerFunc {
+	fmt.Printf("LLEGA A LA PETICION 1111") //SI LLEGA???????
 	return func(ctx *gin.Context) {
 		//Hacer cosas en funcion del archivo en el que esté
+		fmt.Printf("LLEGA A LA PETICION 22222")    //NO LLEGA
 		var req createRequest                      //Me declaro una request con la forma del struct de arriba
 		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
 			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest
 			return
 		}
 
+		fmt.Printf("------ HA LLEGADO A LA PETICION --------") //NO LLEGA
 		//PONER EJEMPLO AQUI PARA VER QUE PASA
 
 		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
@@ -54,7 +57,6 @@ func New(host string, port uint) Server {
 		engine:   gin.New(),                        //Aquí se usa gin para crear el handler
 		httpAddr: fmt.Sprintf("%s:%d", host, port), //Aquí creamos la ADDR a la que lanzar la petición
 	}
-	fmt.Printf("Funciona puta madre")
 	srv.registerRoutes() //Al levantar el server le decimos qué endpoints queremos con esta función
 	return srv
 }
@@ -62,6 +64,7 @@ func New(host string, port uint) Server {
 //No sé muy bien qué hace, revisar
 func (s *Server) Run() error {
 	log.Println("Server running on", s.httpAddr)
+	//log.Println(s.engine.Routes())
 	return s.engine.Run(s.httpAddr)
 }
 
