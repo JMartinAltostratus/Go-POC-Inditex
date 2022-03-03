@@ -91,6 +91,8 @@ func runQuery(uri, database, username, password string) (result []string, err er
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		println("------- HASTA AQUÍ LLEGA -------")
+		//DA UN ERROR CON EL LIMIT AQUÍ PERO PARECE QUE FUNCIONA HASTA AQUÍ
 		result, err := transaction.Run(
 			`
 			MATCH (n)
