@@ -5,12 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
 type createRequest struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Text string `json:"content"`
 	//Relationships como un array de objetos nota??
-}}
+}
 
 // SearchElastic Hacer conexion con Elastic y buscar en funcion de una palabra o whatever
 func SearchElastic() gin.HandlerFunc {
