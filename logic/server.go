@@ -3,44 +3,18 @@ package logic
 import (
 	"fmt"
 	handler "github.com/JMartinAltostratus/Go-POC-Inditex/logic/DB/handlers"
-	"log"
-	//Aqui faltaría el import de Note si estuviese en un archivo DATA o STRUCTS o algo así
 	"github.com/gin-gonic/gin"
+	"log"
 )
-
-// type createRequest struct {
-//	ID   string `json:"id"`
-//	Name string `json:"name"`
-//	Text string `json:"content"`
-//Relationships como un array de objetos nota??
-//}
-
-//////////////// ESTRUCTURA DE TIPO NOTA PARA GUARDAR LOS DATOS DE NEO4J
-
-// Tengo que ver en qué nivel de indentación están las cosas por aquí
-// y qué nombres tienen esas request que se están haciendo
-
-/*func CreateHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		//Hacer cosas en funcion del archivo en el que esté
-		fmt.Printf("CreateHandler correcto \n")    //LLEGA.
-		var req createRequest                      //Me declaro una request con la forma del struct de arriba
-		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
-			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
-			return
-		}
-	}
-} */
-
-/////////// MOVIDAS DEL SERVIDOR PA REFACTORIZAR EN OTRO ARCHIVO
-/////////// LOGICA Y ETC
 
 type Server struct {
 	httpAddr string
 	engine   *gin.Engine
 }
 
-//Esto crea un servidor con gin, a esto se llama desde bootstrap
+// New Crea un nuevo servidor con GIN como engine, y parsea la dirección
+//httpAddr que luego utilizará el método Run(). Además, registra los
+//endpoints de entrada de la API en el registerRoutes
 func New(host string, port uint) Server {
 	srv := Server{
 		engine:   gin.New(),                        //Aquí se usa gin para crear el handler
@@ -50,23 +24,22 @@ func New(host string, port uint) Server {
 	return srv
 }
 
-//No sé muy bien qué hace, revisar
+// Run Corre el servidor en la dirección s.httpAddr, definida en el archivo
+// bootstrap del paquete cmd/api
 func (s *Server) Run() error {
 	log.Println("Server running on", s.httpAddr)
 	//log.Println(s.engine.Routes())
 	return s.engine.Run(s.httpAddr)
 }
 
+// Registra las rutas a las que se podrá atacar desde URI:PUERTO/ ENDPOINT, y
+// lanza las funciones en handlers. Se trabaja a través del body JSON.
 func (s *Server) registerRoutes() {
-	// TODO Crear el archivo searcher con los métodos para Elastic y Neo4J
-	// TODO definir los parámetros de las búsquedas
 
-	// Rutas para las búsquedas, desde aquí voy a separar dos archivos, uni
-	// para rutas que me haga un create handler desde las busquedas
-	// y otro para las ediciones que me cree un handler desde las ediciones
+	// --- RUTAS PARA LAS BÚSQUEDAS EN BD ---
 	//s.engine.GET("/searchElastic", handler.SearchElastic())
 	s.engine.GET("/searchNeo4J", handler.SearchNeo4J())
 
-	// Rutas para editar el contenido de la nota
+	// --- RUTAS PARA LAS EDICIONES EN BD ---
 	s.engine.PUT("/editNote", handler.UpdateNote())
 }

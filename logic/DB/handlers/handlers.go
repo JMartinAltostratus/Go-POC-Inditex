@@ -22,12 +22,13 @@ type request struct {
 	//Relationships como un array de objetos nota??
 }
 
+// ------- CONSTANTES DE LA BD
 const (
 	dbUser = "neo4j"
 	dbPass = "posts-preposition-heats"
-	dbHost = "bolt://3.239.185.213"
+	dbURI  = "bolt://3.239.185.213:7687"
 	dbPort = ":7687"
-	dbName = "Blank Sandbox"
+	dbName = "neo4j"
 )
 
 // SearchElastic Hacer conexion con Elastic y buscar en funcion de una palabra o whatever
@@ -55,17 +56,17 @@ func SearchNeo4J() gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
-		ctx.String(http.StatusOK, "searchNeo4J ha funcionao")
+		ctx.String(http.StatusOK, "searchNeo4J esta funcionando")
 		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
-		ctx.Status(http.StatusCreated) //Un 201 si va bien
+		//ctx.Status(http.StatusCreated) //Un 201 si va bien
 		//fmt.Print(note.ID())
 
 		// -------- Conexion con la neo4J
 		//nota := models.NewNote(req.ID, req.Name, req.Text, nil)
-		driver, err := neo4j.NewDriver(dbHost, neo4j.BasicAuth(dbUser, dbPass, ""))
-		defer func() { err = handleClose(driver, err) }()
+		driver, err := neo4j.NewDriver(dbURI, neo4j.BasicAuth(dbUser, dbPass, ""))
+		defer func() { err = handleClose(driver, err) }() //defer para que se haga al final
 		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: dbName})
-		defer func() { err = handleClose(session, err) }()
+		defer func() { err = handleClose(session, err) }() //defer para que se haga al final
 		createNote(session, models.Note{})
 		//createRelation(session, models.Relation{})
 	}
