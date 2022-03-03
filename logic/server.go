@@ -2,8 +2,7 @@ package logic
 
 import (
 	"fmt"
-	handler "github.com/JMartinAltostratus/Go-POC-Inditex/logic/DB"
-	_ "github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
+	handler "github.com/JMartinAltostratus/Go-POC-Inditex/logic/DB/handlers"
 	"log"
 	//Aqui faltaría el import de Note si estuviese en un archivo DATA o STRUCTS o algo así
 	"github.com/gin-gonic/gin"
@@ -65,7 +64,7 @@ func (s *Server) registerRoutes() {
 	// Rutas para las búsquedas, desde aquí voy a separar dos archivos, uni
 	// para rutas que me haga un create handler desde las busquedas
 	// y otro para las ediciones que me cree un handler desde las ediciones
-	s.engine.GET("/searchElastic", handler.SearchElastic())
+	//s.engine.GET("/searchElastic", handler.SearchElastic())
 	s.engine.GET("/searchNeo4J", handler.SearchNeo4J())
 
 	// Rutas para editar el contenido de la nota

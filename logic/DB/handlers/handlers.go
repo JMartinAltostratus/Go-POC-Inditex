@@ -1,4 +1,4 @@
-package DB
+package handlers
 
 import (
 	"fmt"
@@ -33,13 +33,15 @@ func SearchElastic() gin.HandlerFunc {
 // a la función que haya que llamar, en este caso search
 func SearchNeo4J() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "searchNeo4J ha funcionao")
 
+		ctx.String(http.StatusOK, "searchNeo4J ha funcionao")
 		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
 		ctx.Status(http.StatusCreated) //Un 201 si va bien
 		//fmt.Print(note.ID())
 
 	}
+
+	//Hacer cosas
 }
 
 // UpdateNote Update a la BD Neo4J con los cambios en la nota
