@@ -2,27 +2,26 @@ package logic
 
 import (
 	"fmt"
-	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
-	"log"
-	"net/http"
-
 	handler "github.com/JMartinAltostratus/Go-POC-Inditex/logic/DB"
+	_ "github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
+	"log"
 	//Aqui faltaría el import de Note si estuviese en un archivo DATA o STRUCTS o algo así
 	"github.com/gin-gonic/gin"
 )
+
+// type createRequest struct {
+//	ID   string `json:"id"`
+//	Name string `json:"name"`
+//	Text string `json:"content"`
+//Relationships como un array de objetos nota??
+//}
 
 //////////////// ESTRUCTURA DE TIPO NOTA PARA GUARDAR LOS DATOS DE NEO4J
 
 // Tengo que ver en qué nivel de indentación están las cosas por aquí
 // y qué nombres tienen esas request que se están haciendo
-type createRequest struct {
-	ID   string `json:"id"`
-	Name string `json:"name""`
-	Text string `json:"content"`
-	//Relationships como un array de objetos nota??
-}
 
-func CreateHandler() gin.HandlerFunc {
+/*func CreateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//Hacer cosas en funcion del archivo en el que esté
 		fmt.Printf("CreateHandler correcto \n")    //LLEGA.
@@ -31,16 +30,8 @@ func CreateHandler() gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
 			return
 		}
-
-		fmt.Printf("------ HA LLEGADO LA PETICION --------") //LLEGA SI EL JSON ESTÁ CORRECTO
-
-		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
-		note := models.NewNote(req.ID, req.Name, req.Text, nil) //
-		handler.SearchElastic(note)                             //Para probar un ejemplo, hago una busqueda
-		ctx.Status(http.StatusCreated)                          //Un 201 si todo va bien
-		fmt.Print(note.ID())
 	}
-}
+} */
 
 /////////// MOVIDAS DEL SERVIDOR PA REFACTORIZAR EN OTRO ARCHIVO
 /////////// LOGICA Y ETC
@@ -74,7 +65,7 @@ func (s *Server) registerRoutes() {
 	// Rutas para las búsquedas, desde aquí voy a separar dos archivos, uni
 	// para rutas que me haga un create handler desde las busquedas
 	// y otro para las ediciones que me cree un handler desde las ediciones
-	s.engine.GET("/searchElastic", CreateHandler())
+	s.engine.GET("/searchElastic", handler.SearchElastic())
 	s.engine.GET("/searchNeo4J", handler.SearchNeo4J())
 
 	// Rutas para editar el contenido de la nota
