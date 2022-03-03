@@ -61,16 +61,64 @@ func SearchNeo4J() gin.HandlerFunc {
 		//ctx.Status(http.StatusCreated) //Un 201 si va bien
 		//fmt.Print(note.ID())
 
-		// -------- Conexion con la neo4J
+		// -------- Conexion con la neo4J V1 NO FUNCIONA ERROR 1 VARIABLE BUT DRIVER.NEWSESSION RETURNS 2 VALUES
 		//nota := models.NewNote(req.ID, req.Name, req.Text, nil)
-		driver, err := neo4j.NewDriver(dbURI, neo4j.BasicAuth(dbUser, dbPass, ""))
+		/*driver, err := neo4j.NewDriver(dbURI, neo4j.BasicAuth(dbUser, dbPass, ""))
 		defer func() { err = handleClose(driver, err) }() //defer para que se haga al final
 		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: dbName})
 		defer func() { err = handleClose(session, err) }() //defer para que se haga al final
-		createNote(session, models.Note{})
+		createNote(session, models.Note{}) */
 		//createRelation(session, models.Relation{})
+
+		// ------- conexion con la Neo4J v2 PRUEBA
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass)
+		if err != nil {
+			panic(err)
+		}
+		for _, result := range results {
+			fmt.Println(result)
+		}
 	}
 
+}
+
+func runQuery(uri, database, username, password string) (result []string, err error) {
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = handleClose(driver, err) }()
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
+	defer func() { err = handleClose(session, err) }()
+	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+		result, err := transaction.Run(
+			`
+			MATCH (n)
+			RETURN COUNT(n) AS count
+			LIMIT $limit
+			`, map[string]interface{}{
+				"limit": "10",
+			})
+		if err != nil {
+			return nil, err
+		}
+		var arr []string
+		for result.Next() {
+			value, found := result.Record().Get("count")
+			if found {
+				arr = append(arr, value.(string))
+			}
+		}
+		if err = result.Err(); err != nil {
+			return nil, err
+		}
+		return arr, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	result = results.([]string)
+	return result, err
 }
 
 func createNote(session neo4j.Session, note models.Note) {
