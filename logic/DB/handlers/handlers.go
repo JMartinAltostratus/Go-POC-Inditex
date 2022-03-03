@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"github.com/gin-gonic/gin"
-	"github.com/neo4j/neo4j-go-driver/neo4j"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"io"
 	"log"
 	"net/http"
