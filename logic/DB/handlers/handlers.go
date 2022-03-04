@@ -97,7 +97,6 @@ func runQuery(uri, database, username, password string) (result []string, err er
 			`
 			MATCH (n)
 			RETURN COUNT(n) AS count
-			LIMIT '10'
 			`, map[string]interface{}{})
 		if err != nil {
 			return nil, err
@@ -106,6 +105,7 @@ func runQuery(uri, database, username, password string) (result []string, err er
 		for result.Next() {
 			value, found := result.Record().Get("count")
 			if found {
+				fmt.Printf("A VER KAPASAO: %s", value)
 				arr = append(arr, value.(string))
 			}
 		}
