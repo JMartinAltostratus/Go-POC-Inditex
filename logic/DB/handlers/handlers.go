@@ -76,10 +76,10 @@ func SearchNeo4J() gin.HandlerFunc {
 			panic(err)
 		}
 		for _, result := range results {
-			fmt.Println(result)
+			fmt.Println(result + "1") //TODO probar esto
 		}
+		
 	}
-
 }
 
 func runQuery(uri, database, username, password string) (result []string, err error) {
@@ -91,7 +91,6 @@ func runQuery(uri, database, username, password string) (result []string, err er
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
-		println("PRUEBA SIN PARÁMETROS")
 		//DA UN ERROR CON EL LIMIT AQUÍ PERO PARECE QUE FUNCIONA HASTA AQUÍ
 		result, err := transaction.Run(
 			`
@@ -106,7 +105,20 @@ func runQuery(uri, database, username, password string) (result []string, err er
 			value, found := result.Record().Get("count")
 			if found {
 				fmt.Printf("A VER KAPASAO: %s", value)
-				arr = append(arr, value.(string))
+
+				//Esto es un poco guarro pero pa probar
+				switch bb := value.(interface{}).(type) {
+				case string:
+					fmt.Println("This is a string")
+					arr = append(arr, value.(string))
+				case int64:
+					fmt.Println("this is a float")
+				case bool:
+					fmt.Println("this is a boolean")
+				default:
+					fmt.Printf("Default value is of type %v", bb)
+				}
+
 			}
 		}
 		if err = result.Err(); err != nil {

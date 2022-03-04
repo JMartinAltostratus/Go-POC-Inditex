@@ -37,8 +37,8 @@ func (s *Server) Run() error {
 func (s *Server) registerRoutes() {
 
 	// --- RUTAS PARA LAS BÚSQUEDAS EN BD ---
-	//s.engine.GET("/searchElastic", handler.SearchElastic())
-	s.engine.GET("/searchNeo4J", handler.SearchNeo4J())
+	//s.engine.GET("/searchElastic", handler.SearchElastic()) //Esto te da sugerencias
+	s.engine.GET("/searchNeo4J", handler.SearchNeo4J()) //Esto te da la nota per se
 
 	// --- RUTAS PARA LAS EDICIONES EN BD ---
 	s.engine.PUT("/editNote", handler.UpdateNote())
