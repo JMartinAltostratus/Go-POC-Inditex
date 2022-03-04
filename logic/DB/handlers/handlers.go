@@ -91,13 +91,13 @@ func runQuery(uri, database, username, password string) (result []string, err er
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
-		println("------- HASTA AQUÍ LLEGA -------")
+		println("PRUEBA SIN PARÁMETROS")
 		//DA UN ERROR CON EL LIMIT AQUÍ PERO PARECE QUE FUNCIONA HASTA AQUÍ
 		result, err := transaction.Run(
 			`
 			MATCH (n)
 			RETURN COUNT(n) AS count
-			LIMIT 10
+			LIMIT '10'
 			`, map[string]interface{}{})
 		if err != nil {
 			return nil, err
