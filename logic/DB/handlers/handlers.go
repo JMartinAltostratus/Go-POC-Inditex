@@ -99,7 +99,7 @@ func runQuery(uri, database, username, password string) (result []string, err er
 			RETURN COUNT(n) AS count
 			LIMIT $limit
 			`, map[string]interface{}{
-				"limit": "10",
+				"limit": 10,
 			})
 		if err != nil {
 			return nil, err
