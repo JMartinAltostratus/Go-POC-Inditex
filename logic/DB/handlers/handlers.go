@@ -78,7 +78,7 @@ func SearchNeo4J() gin.HandlerFunc {
 		for _, result := range results {
 			fmt.Println(result + "1") //TODO probar esto
 		}
-		
+
 	}
 }
 
@@ -92,6 +92,9 @@ func runQuery(uri, database, username, password string) (result []string, err er
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 		//DA UN ERROR CON EL LIMIT AQUÍ PERO PARECE QUE FUNCIONA HASTA AQUÍ
+
+		//TODO a ver cómo devuelve los datos, hacer la consulta y devolver
+		// en el metodo runquery lo que tiene que devolver (una nota??)
 		result, err := transaction.Run(
 			`
 			MATCH (n)
@@ -113,12 +116,12 @@ func runQuery(uri, database, username, password string) (result []string, err er
 					arr = append(arr, value.(string))
 				case int64:
 					fmt.Println("this is a float")
+					return value, err //Esto no va a funcionar
 				case bool:
 					fmt.Println("this is a boolean")
 				default:
 					fmt.Printf("Default value is of type %v", bb)
 				}
-
 			}
 		}
 		if err = result.Err(); err != nil {
