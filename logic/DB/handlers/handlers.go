@@ -114,8 +114,8 @@ func runQuery(uri, database, username, password string) (result []string, err er
 		// en el metodo runquery lo que tiene que devolver (una nota??)
 		result, err := transaction.Run(
 			`
-			MATCH (n)
-			RETURN COUNT(n) AS count
+			MATCH n
+			RETURN n AS count
 			`, map[string]interface{}{})
 		if err != nil {
 			return nil, err
@@ -124,21 +124,7 @@ func runQuery(uri, database, username, password string) (result []string, err er
 		for result.Next() {
 			value, found := result.Record().Get("count")
 			if found {
-				fmt.Printf("A VER KAPASAO: %s", value)
-
-				//Esto es un poco guarro pero pa probar
-				switch bb := value.(interface{}).(type) {
-				case string:
-					fmt.Println("This is a string")
-					arr = append(arr, value.(string))
-				case int64:
-					fmt.Println("this is a float")
-					return value, err //Esto no va a funcionar
-				case bool:
-					fmt.Println("this is a boolean")
-				default:
-					fmt.Printf("Default value is of type %v", bb)
-				}
+				fmt.Println(value, " ---> VALOR")
 			}
 		}
 		if err = result.Err(); err != nil {
