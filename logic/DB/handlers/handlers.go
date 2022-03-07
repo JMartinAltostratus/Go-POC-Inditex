@@ -114,7 +114,7 @@ func runQuery(uri, database, username, password string) (result []string, err er
 		// en el metodo runquery lo que tiene que devolver (una nota??)
 		result, err := transaction.Run(
 			`
-			MATCH n
+			MATCH (n)
 			RETURN n AS count
 			`, map[string]interface{}{})
 		if err != nil {
