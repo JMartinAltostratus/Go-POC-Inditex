@@ -19,7 +19,6 @@ type request struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Text string `json:"content"`
-	//Relationships como un array de objetos nota??
 }
 
 // ------- CONSTANTES DE LA BD
@@ -54,7 +53,19 @@ func SearchbyTag() gin.HandlerFunc {
 }
 func SearchbyNote() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		return
+		var req request //Creo la request, que sale de ctx.bindJSON
+		if err := ctx.BindJSON(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "searchByNote esta funcionando")
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass)
+		if err != nil {
+			panic(err)
+		}
+		for _, result := range results {
+			fmt.Println(result + "1") //TODO probar esto
+		}
 	}
 }
 
@@ -62,12 +73,7 @@ func SearchbyNote() gin.HandlerFunc {
 // a la función que haya que llamar, en este caso search
 func SearchNeo4J() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req request
-		if err := ctx.BindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, err.Error())
-			return
-		}
-		ctx.String(http.StatusOK, "searchNeo4J esta funcionando")
+
 		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
 		//ctx.Status(http.StatusCreated) //Un 201 si va bien
 		//fmt.Print(note.ID())
