@@ -25,8 +25,8 @@ type request struct {
 // ------- CONSTANTES DE LA BD
 const (
 	dbUser = "neo4j"
-	dbPass = "posts-preposition-heats"
-	dbURI  = "bolt://3.239.185.213:7687"
+	dbPass = "tones-sample-experts"
+	dbURI  = "bolt://44.199.246.59:7687"
 	dbPort = ":7687"
 	dbName = "neo4j"
 )
@@ -44,6 +44,17 @@ func SearchElastic() gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
 			return
 		}
+	}
+}
+
+func SearchbyTag() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		return
+	}
+}
+func SearchbyNote() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		return
 	}
 }
 

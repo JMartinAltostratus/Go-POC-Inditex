@@ -40,6 +40,9 @@ func (s *Server) registerRoutes() {
 	//s.engine.GET("/searchElastic", handler.SearchElastic()) //Esto te da sugerencias
 	s.engine.GET("/searchNeo4J", handler.SearchNeo4J()) //Esto te da la nota per se
 
+	s.engine.GET("/searchbyTag", handler.SearchByTag())
+	s.engine.GET("/searchbyNote", handler.SearchByNote())
+
 	// --- RUTAS PARA LAS EDICIONES EN BD ---
 	s.engine.PUT("/editNote", handler.UpdateNote())
 }
