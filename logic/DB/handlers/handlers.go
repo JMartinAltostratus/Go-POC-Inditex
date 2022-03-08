@@ -85,7 +85,7 @@ func SearchByTag() gin.HandlerFunc {
 				ctx.String(200, result) //DE VUELTA PAL FRONT
 			}
 		} else {
-			ctx.String(204, _, "No content for this tag")
+			ctx.String(204, "", "No content for this tag")
 		}
 	}
 }
