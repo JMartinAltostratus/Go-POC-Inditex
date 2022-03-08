@@ -73,7 +73,7 @@ func SearchByTag() gin.HandlerFunc {
 			return
 		}
 		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
-		query += fmt.Sprintf(`MATCH (note:Person) WHERE n2.name = "%s" RETURN note LIMIT 10`, req.Tag)
+		query += fmt.Sprintf(`MATCH (note:Person) WHERE note.name = "%s" RETURN note LIMIT 10`, req.Tag)
 		println(query) //Pa probá
 		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
