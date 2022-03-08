@@ -59,7 +59,9 @@ func SearchbyNote() gin.HandlerFunc {
 			return
 		}
 		ctx.String(http.StatusOK, "searchByNote esta funcionando")
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass)
+		query := ""
+		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note`)
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -88,7 +90,9 @@ func SearchNeo4J() gin.HandlerFunc {
 		//createRelation(session, models.Relation{})
 
 		// ------- conexion con la Neo4J v2 PRUEBA
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass)
+		query := ""
+		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note`)
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -99,7 +103,7 @@ func SearchNeo4J() gin.HandlerFunc {
 	}
 }
 
-func runQuery(uri, database, username, password string) (result []string, err error) {
+func runQuery(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		return nil, err
@@ -112,19 +116,18 @@ func runQuery(uri, database, username, password string) (result []string, err er
 
 		//TODO a ver cómo devuelve los datos, hacer la consulta y devolver
 		// en el metodo runquery lo que tiene que devolver (una nota??)
-		result, err := transaction.Run(
-			`
-			MATCH (n)
-			RETURN n AS count
-			`, map[string]interface{}{})
+		result, err := transaction.Run(query, map[string]interface{}{})
 		if err != nil {
 			return nil, err
 		}
 		var arr []string
 		for result.Next() {
-			value, found := result.Record().Get("count")
+			//Lo que hago con el resultado, en este caso espero
+			//que sean string así que los recojo en un array y apaño
+			value, found := result.Record().Get("note")
 			if found {
-				fmt.Println(value, " ---> VALOR")
+				//fmt.Println(value, " ---> FILA COMPLETA")
+				arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
 			}
 		}
 		if err = result.Err(); err != nil {
@@ -135,7 +138,7 @@ func runQuery(uri, database, username, password string) (result []string, err er
 	if err != nil {
 		return nil, err
 	}
-	result = results.([]string)
+	result = results.([]string) //Seguro que esto funciona???
 	return result, err
 }
 

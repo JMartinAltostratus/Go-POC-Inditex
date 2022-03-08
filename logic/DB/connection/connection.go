@@ -40,20 +40,6 @@ func SearchNeo4J() gin.HandlerFunc {
 			return
 		}
 		ctx.String(http.StatusOK, "searchNeo4J esta funcionando")
-		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
-		//ctx.Status(http.StatusCreated) //Un 201 si va bien
-		//fmt.Print(note.ID())
-
-		// -------- Conexion con la neo4J V1 NO FUNCIONA ERROR 1 VARIABLE BUT DRIVER.NEWSESSION RETURNS 2 VALUES
-		//nota := models.NewNote(req.ID, req.Name, req.Text, nil)
-		/*driver, err := neo4j.NewDriver(dbURI, neo4j.BasicAuth(dbUser, dbPass, ""))
-		defer func() { err = handleClose(driver, err) }() //defer para que se haga al final
-		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: dbName})
-		defer func() { err = handleClose(session, err) }() //defer para que se haga al final
-		createNote(session, models.Note{}) */
-		//createRelation(session, models.Relation{})
-
-		// ------- conexion con la Neo4J v2 PRUEBA
 
 	}
 }
