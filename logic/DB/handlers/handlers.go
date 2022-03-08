@@ -79,10 +79,13 @@ func SearchByTag() gin.HandlerFunc {
 		if err != nil {
 			panic(err)
 		}
-
-		for _, result := range results {
-			fmt.Println(result)
-			ctx.String(200, result) //DE VUELTA PAL FRONT
+		if results != nil {
+			for _, result := range results {
+				fmt.Println(result)
+				ctx.String(200, result) //DE VUELTA PAL FRONT
+			}
+		} else {
+			ctx.String(204, "No hay contenido para esa petición")
 		}
 	}
 }
