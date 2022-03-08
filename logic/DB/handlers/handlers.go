@@ -64,7 +64,7 @@ func SearchElastic() gin.HandlerFunc {
 }
 
 // Recibe un string en el contexto y devuelve un mapa de ID-Titulo
-func SearchbyTag() gin.HandlerFunc {
+func SearchByTag() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		query := ""
 		var req requestTag
@@ -86,7 +86,7 @@ func SearchbyTag() gin.HandlerFunc {
 		}
 	}
 }
-func SearchbyNote() gin.HandlerFunc {
+func SearchByNote() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request //Creo la request, que sale de ctx.bindJSON
 		if err := ctx.BindJSON(&req); err != nil {
