@@ -91,7 +91,7 @@ func SearchNeo4J() gin.HandlerFunc {
 
 		// ------- conexion con la Neo4J v2 PRUEBA
 		query := ""
-		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note`)
+		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note LIMIT 10`)
 		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
@@ -126,8 +126,8 @@ func runQuery(uri, database, username, password string, query string) (result []
 			//que sean string así que los recojo en un array y apaño
 			value, found := result.Record().Get("note")
 			if found {
-				//fmt.Println(value, " ---> FILA COMPLETA")
-				arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
+				fmt.Println(value, " ---> FILA COMPLETA")
+				//arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
 			}
 		}
 		if err = result.Err(); err != nil {
