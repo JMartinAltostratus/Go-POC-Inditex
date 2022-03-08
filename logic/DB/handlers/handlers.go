@@ -84,30 +84,18 @@ func SearchbyNote() gin.HandlerFunc {
 func SearchNeo4J() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		//EJEMPLO, ESTA NOTA HABRÍA QUE GUARDARLA EN OTRO CONTEXTO
-		//ctx.Status(http.StatusCreated) //Un 201 si va bien
-		//fmt.Print(note.ID())
-
-		// -------- Conexion con la neo4J V1 NO FUNCIONA ERROR 1 VARIABLE BUT DRIVER.NEWSESSION RETURNS 2 VALUES
-		//nota := models.NewNote(req.ID, req.Name, req.Text, nil)
-		/*driver, err := neo4j.NewDriver(dbURI, neo4j.BasicAuth(dbUser, dbPass, ""))
-		defer func() { err = handleClose(driver, err) }() //defer para que se haga al final
-		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: dbName})
-		defer func() { err = handleClose(session, err) }() //defer para que se haga al final
-		createNote(session, models.Note{}) */
-		//createRelation(session, models.Relation{})
-
 		// ------- conexion con la Neo4J v2 PRUEBA
 		query := ""
-		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note LIMIT 10`)
+		query += fmt.Sprintf(`MATCH (note:Person) RETURN note LIMIT 10`)
 		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
 		for _, result := range results {
-			fmt.Println(result + "1") //TODO probar esto
+			fmt.Println(result)
+			ctx.String(200, result) //ESTO DEVUELVE LOS NOMBRES
 		}
-
+		//return results
 	}
 }
 
@@ -131,17 +119,16 @@ func runQuery(uri, database, username, password string, query string) (result []
 			//que sean string así que los recojo en un array y apaño
 			value, found := result.Record().Get("note")
 			if found {
-				//note := &resultNote{}
-				//err := json.Unmarshal([]byte(value.(string)), note)
-				//if err != nil {
-				//	log.Fatal(err)
-				//}
-				//value, ok := value.(string)
-				//fmt.Println(ok, "-> Bien arrangeado¿?")
-				fmt.Printf(" TIPO %T\n", value)
-				fmt.Println(value, " ---> FILA COMPLETA")
-				//fmt.Println(note.ID, " ---> OBJETO WHATEVER")
-				//arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
+				value, ok := value.(neo4j.Node)
+				if ok {
+					//KETER LAS MOVIDAS EN LA NOTA QUE SEA
+					fmt.Println(value.Id, " ---> ID")
+					fmt.Println(value.Labels, " ---> LABELS")
+					fmt.Println(value.Props, " ---> PROPS")
+					var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
+					//fmt.Println(title, " ---> TITULO")
+					arr = append(arr, title)
+				}
 			}
 		}
 		if err = result.Err(); err != nil {
@@ -152,7 +139,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 	if err != nil {
 		return nil, err
 	}
-	result = results.([]string) //Seguro que esto funciona???
+	result = results.([]string) //SEGURO QUE ESTO FUNCIONA??
 	return result, err
 }
 
