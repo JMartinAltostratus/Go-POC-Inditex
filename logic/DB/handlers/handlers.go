@@ -120,10 +120,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
-		//DA UN ERROR CON EL LIMIT AQUÍ PERO PARECE QUE FUNCIONA HASTA AQUÍ
 
-		//TODO a ver cómo devuelve los datos, hacer la consulta y devolver
-		// en el metodo runquery lo que tiene que devolver (una nota??)
 		result, err := transaction.Run(query, map[string]interface{}{})
 		if err != nil {
 			return nil, err
@@ -139,6 +136,9 @@ func runQuery(uri, database, username, password string, query string) (result []
 				//if err != nil {
 				//	log.Fatal(err)
 				//}
+				//value, ok := value.(string)
+				//fmt.Println(ok, "-> Bien arrangeado¿?")
+				fmt.Printf(" TIPO %T\n", value)
 				fmt.Println(value, " ---> FILA COMPLETA")
 				//fmt.Println(note.ID, " ---> OBJETO WHATEVER")
 				//arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
