@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"github.com/gin-gonic/gin"
@@ -135,13 +134,13 @@ func runQuery(uri, database, username, password string, query string) (result []
 			//que sean string así que los recojo en un array y apaño
 			value, found := result.Record().Get("note")
 			if found {
-				note := &resultNote{}
-				err := json.Unmarshal([]byte(value.(string)), note)
-				if err != nil {
-					log.Fatal(err)
-				}
+				//note := &resultNote{}
+				//err := json.Unmarshal([]byte(value.(string)), note)
+				//if err != nil {
+				//	log.Fatal(err)
+				//}
 				fmt.Println(value, " ---> FILA COMPLETA")
-				fmt.Println(note.ID, " ---> OBJETO WHATEVER")
+				//fmt.Println(note.ID, " ---> OBJETO WHATEVER")
 				//arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
 			}
 		}
@@ -153,7 +152,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 	if err != nil {
 		return nil, err
 	}
-	//result = results.([]string) //Seguro que esto funciona???
+	result = results.([]string) //Seguro que esto funciona???
 	return result, err
 }
 
