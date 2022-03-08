@@ -21,13 +21,22 @@ type request struct {
 	Text string `json:"content"`
 }
 
-type resultNote struct {
-	ID       string `json:"identity"`
-	Type     string `json:"labels"`
-	tagline  string `json:"tagline"`
-	title    string `json:"title"`
-	released string `json:"released"`
+type requestTag struct {
+	Tag string `json:"tag"`
 }
+
+type requestNote struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type jsonResponse struct {
+	title         string
+	text          string
+	tags          []string
+	related_notes []string
+	entities      []string
+} //Esto se parece PELIGROSAMENTE a un tipo nota. Mirar a ver.
 
 // ------- CONSTANTES DE LA BD
 const (
@@ -54,9 +63,27 @@ func SearchElastic() gin.HandlerFunc {
 	}
 }
 
+// Recibe un string en el contexto y devuelve un mapa de ID-Titulo
 func SearchbyTag() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		return
+		query := ""
+		var req requestTag
+		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
+			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
+			return
+		}
+		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
+		query += fmt.Sprintf(`MATCH (note:Person) WHERE n2.name = "%s" RETURN note LIMIT 10`, req.Tag)
+		println(query) //Pa probá
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, result := range results {
+			fmt.Println(result)
+			ctx.String(200, result) //DE VUELTA PAL FRONT
+		}
 	}
 }
 func SearchbyNote() gin.HandlerFunc {
@@ -91,6 +118,7 @@ func SearchNeo4J() gin.HandlerFunc {
 		if err != nil {
 			panic(err)
 		}
+
 		for _, result := range results {
 			fmt.Println(result)
 			ctx.String(200, result) //ESTO DEVUELVE LOS NOMBRES
@@ -98,6 +126,10 @@ func SearchNeo4J() gin.HandlerFunc {
 		//return results
 	}
 }
+
+//FALTA NADA; CAMBIAR ESTO PARA QUE SE CREE Y DEVUELVA UN OBJETO TIPO
+//NOTA Y MANDARLO PAL FRONT CON TREMENDO JSON.MARSHAL. RECORDAR
+//QUE SOLO LOS ATRIBUTOS PÚBLICOS SE MARSHALEAN Y LISTO.
 
 func runQuery(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
