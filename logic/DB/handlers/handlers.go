@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,14 @@ type request struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Text string `json:"content"`
+}
+
+type resultNote struct {
+	ID       string `json:"identity"`
+	Type     string `json:"labels"`
+	tagline  string `json:"tagline"`
+	title    string `json:"title"`
+	released string `json:"released"`
 }
 
 // ------- CONSTANTES DE LA BD
@@ -126,7 +135,13 @@ func runQuery(uri, database, username, password string, query string) (result []
 			//que sean string así que los recojo en un array y apaño
 			value, found := result.Record().Get("note")
 			if found {
+				note := &resultNote{}
+				err := json.Unmarshal([]byte(value.(string)), note)
+				if err != nil {
+					log.Fatal(err)
+				}
 				fmt.Println(value, " ---> FILA COMPLETA")
+				fmt.Println(note.ID, " ---> OBJETO WHATEVER")
 				//arr = append(arr, value.(string)) //Esto funciona SOLO con arrays, mirar a ver
 			}
 		}
@@ -138,7 +153,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 	if err != nil {
 		return nil, err
 	}
-	result = results.([]string) //Seguro que esto funciona???
+	//result = results.([]string) //Seguro que esto funciona???
 	return result, err
 }
 
@@ -149,7 +164,6 @@ func createNote(session neo4j.Session, note models.Note) {
 	} else {
 		print("La nota ya existe")
 	}
-	//map[string]interface{}{}??????????????
 	r, err := session.Run(query, map[string]interface{}{})
 	fmt.Println(r)
 	if err != nil {
