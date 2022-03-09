@@ -3,17 +3,17 @@ package models
 //////////////// ESTRUCTURA DE TIPO NOTA PARA GUARDAR LOS DATOS DE NEO4J
 
 type Note struct {
-	Id    string
-	Title string
+	Id    string `json:"id"`
+	Title string `json:"title"`
 	//org.title textos orginales en caso de que hagan falta
 	//org.text
 
-	Name    string
-	Content string
+	Name    string `json:"name"`
+	Content string `json:"text"`
 
-	Tags          []string // las etiquetas con las que tiene relación, que son entidades a parte
-	Related_notes []string //Los ID de las notas que tiene relacionadas
-	Entities      []string //Las entidades que tiene. Esto son palabras importantes que se encuentran con IA
+	Tags          []string `json:"tags"`          // las etiquetas con las que tiene relación, que son entidades a parte
+	Related_notes []string `json:"related_notes"` //Los ID de las notas que tiene relacionadas
+	Entities      []string `json:"entities"`      //Las entidades que tiene. Esto son palabras importantes que se encuentran con IA
 }
 
 // Simplemente crea una nueva nota

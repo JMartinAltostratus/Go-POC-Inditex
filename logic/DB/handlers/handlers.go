@@ -177,9 +177,10 @@ func runQueryRetJSON(uri, database, username, password string, query string) (re
 					//note.Related_notes = value.Props.["related"].([]string)
 					//note.Entities = value.Props.["entities"].([]string)
 					//arrprueba := [...]string{"esto", "son", "relaciones entre notas"}
-					note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil)
+					note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil, nil, nil)
 					var bytes []byte
 					bytes, err = json.Marshal(note)
+					println("Nota", note)
 					println("JSON????", bytes)
 					//arr = append(arr, title)
 				}
