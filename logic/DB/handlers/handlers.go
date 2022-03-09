@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/JMartinAltostratus/Go-POC-Inditex/logic/models"
 	"github.com/gin-gonic/gin"
@@ -123,7 +124,7 @@ func SearchNeo4J() gin.HandlerFunc {
 		// ------- conexion con la Neo4J v2 PRUEBA
 		query := ""
 		query += fmt.Sprintf(`MATCH (note:Person) RETURN note LIMIT 10`)
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
+		results, err := runQueryRetJSON(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -140,7 +141,7 @@ func SearchNeo4J() gin.HandlerFunc {
 //NOTA Y MANDARLO PAL FRONT CON TREMENDO JSON.MARSHAL. RECORDAR
 //QUE SOLO LOS ATRIBUTOS PÚBLICOS SE MARSHALEAN Y LISTO.
 
-func runQuery2(uri, database, username, password string, query string) (result models.Note, err error) {
+func runQueryRetJSON(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		return nil, err
@@ -155,10 +156,10 @@ func runQuery2(uri, database, username, password string, query string) (result m
 			return nil, err
 		}
 		var arr []string
+		//note := models.NewNote("", "", "", nil)
 		for result.Next() {
 			//Lo que hago con el resultado, en este caso espero
 			//que sean string así que los recojo en un array y apaño
-			note := models.NewNote("", "", "", nil)
 			value, found := result.Record().Get("note")
 			if found {
 				value, ok := value.(neo4j.Node)
@@ -167,33 +168,34 @@ func runQuery2(uri, database, username, password string, query string) (result m
 					fmt.Println(value.Id, " ---> ID")
 					fmt.Println(value.Labels, " ---> LABELS")
 					fmt.Println(value.Props, " ---> PROPS")
-
-					note.Id = value.Props.["id"].(string)
-					note.Name = value.Props.["Id"].(string)
-					note.Content = value.Props.["Id"].(string)
-					note.Tags = value.Props.["Id"].([]string)
-					note.Related_notes = value.Props.["Id"].([]string)
-					note.Entities = value.Props.["Id"].([]string)
-
-					var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
+					//var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
 					//fmt.Println(title, " ---> TITULO")
+					//note.Id = value.Props.["id"].(string)
+					//note.Name = value.Props.["name"].(string)
+					//note.Content = value.Props.["text"].(string)
+					//note.Tags = value.Props.["tags"].([]string)
+					//note.Related_notes = value.Props.["related"].([]string)
+					//note.Entities = value.Props.["entities"].([]string)
+					//arrprueba := [...]string{"esto", "son", "relaciones entre notas"}
+					note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil)
+					var bytes []byte
+					bytes, err = json.Marshal(note)
+					println("JSON????", bytes)
 					//arr = append(arr, title)
+				}
+			}
+		}
+		if err = result.Err(); err != nil {
+			return nil, err
+		}
+		return arr, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	result = results.([]string) //SEGURO QUE ESTO FUNCIONA??
+	return result, err
 }
-}
-}
-if err = result.Err(); err != nil {
-return nil, err
-}
-return note, nil
-})
-if err != nil {
-return nil, err
-}
-result = results.(models.Note) //SEGURO QUE ESTO FUNCIONA??
-return result, err
-}
-
-
 
 func runQuery(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
@@ -241,7 +243,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 
 func createNote(session neo4j.Session, note models.Note) {
 	query := ""
-	if note.ID() == "" {
+	if note.Id == "" {
 		query += fmt.Sprintf(`CREATE (:Note {idNote: "%s", name: "%s",content: "%s"})})`, note.ID(), note.Name(), note.Content())
 	} else {
 		print("La nota ya existe")
