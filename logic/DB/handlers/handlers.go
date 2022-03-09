@@ -91,20 +91,26 @@ func SearchByTag() gin.HandlerFunc {
 }
 func SearchByNote() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req request //Creo la request, que sale de ctx.bindJSON
-		if err := ctx.BindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, err.Error())
+		query := ""
+		var req requestNote
+		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
+			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
 			return
 		}
-		ctx.String(http.StatusOK, "searchByNote esta funcionando")
-		query := ""
-		query += fmt.Sprintf(`MATCH (note) RETURN (note) AS note`)
+		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
+		query += fmt.Sprintf(`MATCH (note:New) WHERE note.title = "%s" RETURN note LIMIT 10`, req.Name)
+		println(query) //Pa probá
 		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
-		for _, result := range results {
-			fmt.Println(result + "1") //TODO probar esto
+		if results != nil {
+			for _, result := range results {
+				fmt.Println(result)
+				ctx.String(200, result) //DE VUELTA PAL FRONT
+			}
+		} else {
+			ctx.String(204, "", "No content for this tag")
 		}
 	}
 }
@@ -133,6 +139,61 @@ func SearchNeo4J() gin.HandlerFunc {
 //FALTA NADA; CAMBIAR ESTO PARA QUE SE CREE Y DEVUELVA UN OBJETO TIPO
 //NOTA Y MANDARLO PAL FRONT CON TREMENDO JSON.MARSHAL. RECORDAR
 //QUE SOLO LOS ATRIBUTOS PÚBLICOS SE MARSHALEAN Y LISTO.
+
+func runQuery2(uri, database, username, password string, query string) (result models.Note, err error) {
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = handleClose(driver, err) }()
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
+	defer func() { err = handleClose(session, err) }()
+	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+
+		result, err := transaction.Run(query, map[string]interface{}{})
+		if err != nil {
+			return nil, err
+		}
+		var arr []string
+		for result.Next() {
+			//Lo que hago con el resultado, en este caso espero
+			//que sean string así que los recojo en un array y apaño
+			note := models.NewNote("", "", "", nil)
+			value, found := result.Record().Get("note")
+			if found {
+				value, ok := value.(neo4j.Node)
+				if ok {
+					//KETER LAS MOVIDAS EN LA NOTA QUE SEA
+					fmt.Println(value.Id, " ---> ID")
+					fmt.Println(value.Labels, " ---> LABELS")
+					fmt.Println(value.Props, " ---> PROPS")
+
+					note.Id = value.Props.["id"].(string)
+					note.Name = value.Props.["Id"].(string)
+					note.Content = value.Props.["Id"].(string)
+					note.Tags = value.Props.["Id"].([]string)
+					note.Related_notes = value.Props.["Id"].([]string)
+					note.Entities = value.Props.["Id"].([]string)
+
+					var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
+					//fmt.Println(title, " ---> TITULO")
+					//arr = append(arr, title)
+}
+}
+}
+if err = result.Err(); err != nil {
+return nil, err
+}
+return note, nil
+})
+if err != nil {
+return nil, err
+}
+result = results.(models.Note) //SEGURO QUE ESTO FUNCIONA??
+return result, err
+}
+
+
 
 func runQuery(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
