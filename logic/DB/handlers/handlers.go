@@ -244,7 +244,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 func createNote(session neo4j.Session, note models.Note) {
 	query := ""
 	if note.Id == "" {
-		query += fmt.Sprintf(`CREATE (:Note {idNote: "%s", name: "%s",content: "%s"})})`, note.ID(), note.Name(), note.Content())
+		query += fmt.Sprintf(`CREATE (:Note {idNote: "%s", name: "%s",content: "%s"})})`, note.Id, note.Name, note.Content)
 	} else {
 		print("La nota ya existe")
 	}
