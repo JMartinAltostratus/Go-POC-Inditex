@@ -259,7 +259,7 @@ func runQueryRetTag(uri, database, username, password string, query string) (res
 	return result, err
 }
 
-func runQuery(uri, database, username, password string, query string, update requestUpdate) (result []string, err error) {
+func runQuery(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		return nil, err
@@ -270,9 +270,8 @@ func runQuery(uri, database, username, password string, query string, update req
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 
 		result, err := transaction.Run(query, map[string]interface{}{
-			"props": update,
+			//"props": update,
 		})
-		fmt.Println("Update: ", update)
 		fmt.Println("Resultado: ", result)
 		if err != nil {
 			return nil, err
@@ -340,13 +339,13 @@ func UpdateNote() gin.HandlerFunc {
 		//ESTA ES LA PRUEBA
 		//query += fmt.Sprintf(`MATCH (note:Person {title: '%s'}) SET note = {title: '%s', text: '%s' tags: '%s' related: '%s' entities: '%s'} RETURN note.title`, req.Id, req.Title, req.Content, req.Tags, req.Related_notes, req.Entities)
 
-		query += fmt.Sprintf(`MATCH (note:Person {title: '%s'}) SET note = $props RETURN note.title`, req.Id)
+		query += fmt.Sprintf(`MATCH (note:Person {name: '%s'}) SET note = $props RETURN note.title`, req.Id)
 		fmt.Println(req)
 		//HAY QUE FORMATEAR LOS ARRAYS AQUÍ PARA INSERTARLOS EN LA DB,
 		//EN JSON ME LLEGA COMO [WHATEVER WHATEVER WHATEVER].
 
 		println(query) //Pa probá
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query, req)
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
