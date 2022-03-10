@@ -31,13 +31,10 @@ type requestNote struct {
 	Name string `json:"name"`
 }
 
-type jsonResponse struct {
-	id            string
-	title         string
-	text          string
-	tags          []string
-	related_notes []string
-	entities      []string
+type TempTag struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	Info  string `json:"info"`
 } //Esto se parece PELIGROSAMENTE a un tipo nota. Mirar a ver.
 
 // ------- CONSTANTES DE LA BD
@@ -102,7 +99,8 @@ func SearchByNote() gin.HandlerFunc {
 		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
 		query += fmt.Sprintf(`MATCH (note:New) WHERE note.title = "%s" RETURN note LIMIT 10`, req.Name)
 		println(query) //Pa probá
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
+		//Recién cambiado, cuidao con lo que hace
+		results, err := runQueryRetNote(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,7 @@ func SearchNeo4J() gin.HandlerFunc {
 		// ------- conexion con la Neo4J v2 PRUEBA
 		query := ""
 		query += fmt.Sprintf(`MATCH (note:Person) RETURN note LIMIT 10`)
-		results, err := runQueryRetJSON(dbURI, dbName, dbUser, dbPass, query)
+		results, err := runQueryRetTag(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -142,7 +140,7 @@ func SearchNeo4J() gin.HandlerFunc {
 //NOTA Y MANDARLO PAL FRONT CON TREMENDO JSON.MARSHAL. RECORDAR
 //QUE SOLO LOS ATRIBUTOS PÚBLICOS SE MARSHALEAN Y LISTO.
 
-func runQueryRetJSON(uri, database, username, password string, query string) (result []string, err error) {
+func runQueryRetNote(uri, database, username, password string, query string) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		return nil, err
@@ -157,7 +155,7 @@ func runQueryRetJSON(uri, database, username, password string, query string) (re
 			return nil, err
 		}
 		var arr []string
-		var note = models.NewNote("", "", "", nil)
+		var note = models.NewNote("", "", "", nil, nil, nil)
 		for result.Next() {
 			//Lo que hago con el resultado, en este caso espero
 			//que sean string así que los recojo en un array y apaño
@@ -171,18 +169,66 @@ func runQueryRetJSON(uri, database, username, password string, query string) (re
 					fmt.Println(value.Props, " ---> PROPS")
 					//var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
 					//fmt.Println(title, " ---> TITULO")
-					note.Id = value.Props["id"].(string)
-					note.Name = value.Props["name"].(string)
-					note.Content = value.Props["text"].(string)
-					note.Tags = value.Props["tags"].([]string)
-					note.Related_notes = value.Props["related"].([]string)
-					note.Entities = value.Props["entities"].([]string)
+					note.Id, _ = value.Props["id"].(string)
+					note.Name, _ = value.Props["name"].(string)
+					note.Content, _ = value.Props["text"].(string)
+					note.Tags, _ = value.Props["tags"].([]string)
+					note.Related_notes, _ = value.Props["related"].([]string)
+					note.Entities, _ = value.Props["entities"].([]string)
 					//arrprueba := [...]string{"esto", "son", "relaciones entre notas"}
 					//note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil, nil, nil)
-					note := models.NewNote(note.Id, note.Name, note.Content, note.Tags, note.Related_notes, note.Entities)
+					note = models.NewNote(note.Id, note.Name, note.Content, note.Tags, note.Related_notes, note.Entities)
 					var bytes []byte
 					bytes, _ = json.Marshal(note)
 					println("Nota", note.Name)
+					println("JSON????", string(bytes))
+					arr = append(arr, string(bytes))
+				}
+			}
+		}
+		if err = result.Err(); err != nil {
+			return nil, err
+		}
+		return arr, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	result = results.([]string) //SEGURO QUE ESTO FUNCIONA??
+	return result, err
+}
+
+func runQueryRetTag(uri, database, username, password string, query string) (result []string, err error) {
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = handleClose(driver, err) }()
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: database})
+	defer func() { err = handleClose(session, err) }()
+	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+
+		result, err := transaction.Run(query, map[string]interface{}{})
+		if err != nil {
+			return nil, err
+		}
+		var arr []string
+		var tag TempTag
+		for result.Next() {
+			//MIRAR A VER LA QUERY PARA VER QUÉ COJO EN ESTE CASO
+			value, found := result.Record().Get("note")
+			if found {
+				value, ok := value.(neo4j.Node)
+				if ok {
+					tag.Id, _ = value.Props["id"].(string)
+					tag.Title, _ = value.Props["name"].(string)
+					tag.Info, _ = value.Props["text"].(string)
+
+					//arrprueba := [...]string{"esto", "son", "relaciones entre notas"}
+					//note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil, nil, nil)
+					var bytes []byte
+					bytes, _ = json.Marshal(tag)
+					println("Nota", tag.Id)
 					println("JSON????", string(bytes))
 					arr = append(arr, string(bytes))
 				}
