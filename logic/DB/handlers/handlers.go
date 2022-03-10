@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 )
@@ -20,6 +19,20 @@ type request struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Text string `json:"content"`
+}
+
+type requestUpdate struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	//org.title textos orginales en caso de que hagan falta
+	//org.text
+
+	Name    string `json:"name"`
+	Content string `json:"text"`
+
+	Tags          []string `json:"tags"`          // las etiquetas con las que tiene relación, que son entidades a parte
+	Related_notes []string `json:"related_notes"` //Los ID de las notas que tiene relacionadas
+	Entities      []string `json:"entities"`
 }
 
 type requestTag struct {
@@ -74,7 +87,7 @@ func SearchByTag() gin.HandlerFunc {
 		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
 		query += fmt.Sprintf(`MATCH (note:Person) WHERE note.name = "%s" RETURN note LIMIT 10`, req.Tag)
 		println(query) //Pa probá
-		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query)
+		results, err := runQueryRetTag(dbURI, dbName, dbUser, dbPass, query)
 		if err != nil {
 			panic(err)
 		}
@@ -246,7 +259,7 @@ func runQueryRetTag(uri, database, username, password string, query string) (res
 	return result, err
 }
 
-func runQuery(uri, database, username, password string, query string) (result []string, err error) {
+func runQuery(uri, database, username, password string, query string, update requestUpdate) (result []string, err error) {
 	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		return nil, err
@@ -256,24 +269,21 @@ func runQuery(uri, database, username, password string, query string) (result []
 	defer func() { err = handleClose(session, err) }()
 	results, err := session.ReadTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
 
-		result, err := transaction.Run(query, map[string]interface{}{})
+		result, err := transaction.Run(query, map[string]interface{}{
+			"props": update,
+		})
+		fmt.Println("Update: ", update)
+		fmt.Println("Resultado: ", result)
 		if err != nil {
 			return nil, err
 		}
 		var arr []string
 		for result.Next() {
-			//Lo que hago con el resultado, en este caso espero
-			//que sean string así que los recojo en un array y apaño
 			value, found := result.Record().Get("note")
 			if found {
 				value, ok := value.(neo4j.Node)
 				if ok {
-					//KETER LAS MOVIDAS EN LA NOTA QUE SEA
-					fmt.Println(value.Id, " ---> ID")
-					fmt.Println(value.Labels, " ---> LABELS")
-					fmt.Println(value.Props, " ---> PROPS")
 					var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
-					//fmt.Println(title, " ---> TITULO")
 					arr = append(arr, title)
 				}
 			}
@@ -290,7 +300,7 @@ func runQuery(uri, database, username, password string, query string) (result []
 	return result, err
 }
 
-func createNote(session neo4j.Session, note models.Note) {
+/*func createNote(session neo4j.Session, note models.Note) {
 	query := ""
 	if note.Id == "" {
 		query += fmt.Sprintf(`CREATE (:Note {idNote: "%s", name: "%s",content: "%s"})})`, note.Id, note.Name, note.Content)
@@ -302,7 +312,7 @@ func createNote(session neo4j.Session, note models.Note) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
+}*/
 
 func handleClose(closer io.Closer, previousError error) error {
 	err := closer.Close()
@@ -318,6 +328,35 @@ func handleClose(closer io.Closer, previousError error) error {
 // UpdateNote Update a la BD Neo4J con los cambios en la nota
 func UpdateNote() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "UpdateNote ha funcionao")
+		query := ""
+		var req requestUpdate
+		if err := ctx.BindJSON(&req); err != nil { //Aquí se usa gin para gestionar la petición y modifico el objeto anterior
+			ctx.JSON(http.StatusBadRequest, err.Error()) //En caso de que no vaya, se devuelve un badrequest 400
+			return
+		}
+		//query += fmt.Sprintf(`MATCH (n1:New)-[r:HAS_TAG]->(n2) WHERE n2.name = "%s" RETURN r, n1, n2 LIMIT 25`, req.Tag)
+		//ESTA ES LA BUENA ??
+		//query += fmt.Sprintf(`MATCH (note:News {id: '%s'}) SET note = {title: '%s', text: '%s' tags: '%s' related: '%s' entities: '%s'} RETURN note.title`, req.Id, req.Title, req.Content, req.Tags, req.Related_notes, req.Entities)
+		//ESTA ES LA PRUEBA
+		//query += fmt.Sprintf(`MATCH (note:Person {title: '%s'}) SET note = {title: '%s', text: '%s' tags: '%s' related: '%s' entities: '%s'} RETURN note.title`, req.Id, req.Title, req.Content, req.Tags, req.Related_notes, req.Entities)
+
+		query += fmt.Sprintf(`MATCH (note:Person {title: '%s'}) SET note = $props RETURN note.title`, req.Id)
+		fmt.Println(req)
+		//HAY QUE FORMATEAR LOS ARRAYS AQUÍ PARA INSERTARLOS EN LA DB,
+		//EN JSON ME LLEGA COMO [WHATEVER WHATEVER WHATEVER].
+
+		println(query) //Pa probá
+		results, err := runQuery(dbURI, dbName, dbUser, dbPass, query, req)
+		if err != nil {
+			panic(err)
+		}
+		if results != nil {
+			for _, result := range results {
+				fmt.Println("Note: ", result, "updated")
+				ctx.String(200, fmt.Sprintf("Note: ", result, "updated")) //DE VUELTA PAL FRONT
+			}
+		} else {
+			ctx.String(204, "", "No matches in the DB for this petition")
+		}
 	}
 }
