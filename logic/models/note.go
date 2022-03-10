@@ -17,14 +17,14 @@ type Note struct {
 }
 
 // Simplemente crea una nueva nota
-func NewNote(id string, name string, content string, tags []string, related_notes []string, entities []string) Note {
+func NewNote(id string, name string, content string, tags []string, relatedNotes []string, entities []string) Note {
 
 	return Note{
 		Id:            id,
 		Name:          name,
 		Content:       content,
 		Tags:          tags,
-		Related_notes: related_notes,
+		Related_notes: relatedNotes,
 		Entities:      entities,
 	}
 }

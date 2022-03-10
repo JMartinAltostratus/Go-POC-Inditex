@@ -32,6 +32,7 @@ type requestNote struct {
 }
 
 type jsonResponse struct {
+	id            string
 	title         string
 	text          string
 	tags          []string
@@ -111,7 +112,7 @@ func SearchByNote() gin.HandlerFunc {
 				ctx.String(200, result) //DE VUELTA PAL FRONT
 			}
 		} else {
-			ctx.String(204, "", "No content for this tag")
+			ctx.String(204, "", "No content for this note")
 		}
 	}
 }
@@ -156,7 +157,7 @@ func runQueryRetJSON(uri, database, username, password string, query string) (re
 			return nil, err
 		}
 		var arr []string
-		//note := models.NewNote("", "", "", nil)
+		var note = models.NewNote("", "", "", nil)
 		for result.Next() {
 			//Lo que hago con el resultado, en este caso espero
 			//que sean string así que los recojo en un array y apaño
@@ -170,19 +171,20 @@ func runQueryRetJSON(uri, database, username, password string, query string) (re
 					fmt.Println(value.Props, " ---> PROPS")
 					//var title, _ = value.Props["name"].(string) //FORMA DE COGER UN CAMPO CONCRETO
 					//fmt.Println(title, " ---> TITULO")
-					//note.Id = value.Props.["id"].(string)
-					//note.Name = value.Props.["name"].(string)
-					//note.Content = value.Props.["text"].(string)
-					//note.Tags = value.Props.["tags"].([]string)
-					//note.Related_notes = value.Props.["related"].([]string)
-					//note.Entities = value.Props.["entities"].([]string)
+					note.Id = value.Props["id"].(string)
+					note.Name = value.Props["name"].(string)
+					note.Content = value.Props["text"].(string)
+					note.Tags = value.Props["tags"].([]string)
+					note.Related_notes = value.Props["related"].([]string)
+					note.Entities = value.Props["entities"].([]string)
 					//arrprueba := [...]string{"esto", "son", "relaciones entre notas"}
-					note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil, nil, nil)
+					//note := models.NewNote("1213412", "NotaDePrueba", "Esto es una nota de prueba", nil, nil, nil)
+					note := models.NewNote(note.Id, note.Name, note.Content, note.Tags, note.Related_notes, note.Entities)
 					var bytes []byte
-					bytes, err = json.Marshal(note)
-					println("Nota", note)
-					println("JSON????", bytes)
-					//arr = append(arr, title)
+					bytes, _ = json.Marshal(note)
+					println("Nota", note.Name)
+					println("JSON????", string(bytes))
+					arr = append(arr, string(bytes))
 				}
 			}
 		}
